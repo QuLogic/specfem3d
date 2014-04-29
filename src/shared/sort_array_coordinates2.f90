@@ -27,8 +27,8 @@
 
 ! subroutines to sort MPI buffers to assemble between chunks
 
-  subroutine sort_array_coordinates(npointot,x,y,z,ibool,iglob,locval, &
-                                    nglob,xtol)
+  subroutine sort_array_coordinates2(npointot,x,y,z,ibool,iglob,locval, &
+                                     nglob,xtol)
 
 ! this routine MUST be in double precision to avoid sensitivity
 ! to roundoff errors in the coordinates of the points
@@ -55,7 +55,7 @@
     locval(i) = i
   enddo
 
-  call heap_sort_multi(npointot, x, y, z, ibool, locval)
+  call heap_sort_multi2(npointot, x, y, z, ibool, locval)
 
   ! assign global node numbers (now sorted lexicographically)
   ig = 1
@@ -74,11 +74,11 @@
 
   nglob = ig
 
-  end subroutine sort_array_coordinates
+  end subroutine sort_array_coordinates2
 
 ! -------------------- library for sorting routine ------------------
 
-  subroutine heap_sort_multi(N, dx, dy, dz, ia, ib)
+  subroutine heap_sort_multi2(N, dx, dy, dz, ia, ib)
 
   implicit none
   integer, intent(in) :: N
@@ -95,23 +95,23 @@
 
   ! builds heap
   do i = N/2, 1, -1
-    call heap_sort_siftdown(i, n)
+    call heap_sort_siftdown2(i, n)
   enddo
 
   ! sorts array
   do i = N, 2, -1
     ! swaps last and first entry in this section
-    call dswap(dx, 1, i)
-    call dswap(dy, 1, i)
-    call dswap(dz, 1, i)
-    call iswap(ia, 1, i)
-    call iswap(ib, 1, i)
-    call heap_sort_siftdown(1, i - 1)
+    call dswap2(dx, 1, i)
+    call dswap2(dy, 1, i)
+    call dswap2(dz, 1, i)
+    call iswap2(ia, 1, i)
+    call iswap2(ib, 1, i)
+    call heap_sort_siftdown2(1, i - 1)
   enddo
 
   contains
 
-    subroutine dswap(A, i, j)
+    subroutine dswap2(A, i, j)
 
     double precision, dimension(:), intent(inout) :: A
     integer, intent(in) :: i
@@ -125,7 +125,7 @@
 
     end subroutine
 
-    subroutine iswap(A, i, j)
+    subroutine iswap2(A, i, j)
 
     integer, dimension(:), intent(inout) :: A
     integer, intent(in) :: i
@@ -139,7 +139,7 @@
 
     end subroutine
 
-    subroutine heap_sort_siftdown(start, bottom)
+    subroutine heap_sort_siftdown2(start, bottom)
 
     integer, intent(in) :: start
     integer, intent(in) :: bottom
@@ -188,6 +188,6 @@
     ia(i) = atmp
     ib(i) = btmp
 
-    end subroutine heap_sort_siftdown
+    end subroutine heap_sort_siftdown2
 
-  end subroutine heap_sort_multi
+  end subroutine heap_sort_multi2
