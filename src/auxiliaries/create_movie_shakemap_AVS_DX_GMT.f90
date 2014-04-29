@@ -83,7 +83,7 @@
   ! for sorting routine
   integer :: npointot,ilocnum,nglob,i,j,ielm,ieoff,ispecloc
   integer, dimension(:), allocatable :: iglob,locval,ireorder
-  logical, dimension(:), allocatable :: ifseg,mask_point
+  logical, dimension(:), allocatable :: mask_point
   double precision, dimension(:), allocatable :: xp,yp,zp,xp_save,yp_save,zp_save,field_display
 
   ! movie files stored by solver
@@ -273,7 +273,6 @@
 
   ! allocate arrays for sorting routine
   allocate(iglob(npointot),locval(npointot), &
-          ifseg(npointot), &
           xp(npointot),yp(npointot),zp(npointot), &
           xp_save(npointot),yp_save(npointot),zp_save(npointot), &
           field_display(npointot), &
@@ -536,7 +535,7 @@
 
       ! sort the list based upon coordinates to get rid of multiples
       print *,'sorting list of points'
-      call get_global(npointot,xp,yp,zp,iglob,locval,ifseg,nglob, &
+      call get_global(npointot,xp,yp,zp,iglob,locval,nglob, &
            dble(minval(store_val_x(:))),dble(maxval(store_val_x(:))))
 
       ! print total number of points found
@@ -806,7 +805,6 @@ enddo ! it
 
   ! deallocate arrays for sorting routine
   deallocate(iglob,locval)
-  deallocate(ifseg)
   deallocate(xp,yp,zp)
   deallocate(xp_save,yp_save,zp_save)
   deallocate(field_display)

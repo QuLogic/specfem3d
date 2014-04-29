@@ -25,7 +25,7 @@
 !
 !=====================================================================
 
-  subroutine get_global(npointot,xp,yp,zp,iglob,locval,ifseg,nglob,UTM_X_MIN,UTM_X_MAX)
+  subroutine get_global(npointot,xp,yp,zp,iglob,locval,nglob,UTM_X_MIN,UTM_X_MAX)
 
 ! this routine MUST be in double precision to avoid sensitivity
 ! to roundoff errors in the coordinates of the points
@@ -41,14 +41,13 @@
   integer npointot
   integer nglob
   integer iglob(npointot),locval(npointot)
-  logical ifseg(npointot)
   double precision xp(npointot),yp(npointot),zp(npointot)
   double precision UTM_X_MIN,UTM_X_MAX
 
   integer ispec,i,j,ier
   integer ieoff,ilocnum,nseg,ioff,iseg,ig
 
-  integer, dimension(:), allocatable :: ninseg,idummy
+  integer, dimension(:), allocatable :: idummy
 
 ! geometry tolerance parameter to calculate number of independent grid points
 ! small value for double precision and to avoid sensitivity to roundoff
@@ -58,16 +57,13 @@
   SMALLVALTOL = 1.d-10 * dabs(UTM_X_MAX - UTM_X_MIN)
 
 ! dynamically allocate arrays
-  allocate(ninseg(npointot),stat=ier)
-  if( ier /= 0 ) stop 'error allocating array ninseg'
   allocate(idummy(npointot),stat=ier)
   if( ier /= 0 ) stop 'error allocating array idummy'
 
-  call sort_array_coordinates(npointot,xp,yp,zp,idummy,iglob,locval,ifseg, &
-                              nglob,ninseg,SMALLVALTOL)
+  call sort_array_coordinates(npointot,xp,yp,zp,idummy,iglob,locval, &
+                              nglob,SMALLVALTOL)
 
 ! deallocate arrays
-  deallocate(ninseg)
   deallocate(idummy)
 
   end subroutine get_global

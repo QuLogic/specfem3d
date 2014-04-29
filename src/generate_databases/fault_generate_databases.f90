@@ -318,7 +318,6 @@ subroutine setup_ibools(fdb,xstore,ystore,zstore,nspec,npointot)
 
   double precision :: xp(npointot),yp(npointot),zp(npointot),xmin,xmax
   integer :: locval(npointot)
-  logical :: ifseg(npointot)
   integer :: ispec,k,igll,ie,je,ke,e
 
   xmin = minval(nodes_coords_ext_mesh(1,:))
@@ -338,7 +337,7 @@ subroutine setup_ibools(fdb,xstore,ystore,zstore,nspec,npointot)
     enddo
   enddo
   allocate( fdb%ibool1(NGLLSQUARE,fdb%nspec) )
-  call get_global(npointot,xp,yp,zp,fdb%ibool1,locval,ifseg,fdb%nglob,xmin,xmax)
+  call get_global(npointot,xp,yp,zp,fdb%ibool1,locval,fdb%nglob,xmin,xmax)
 
 ! xp,yp,zp need to be recomputed on side 2
 ! because they are generally not in the same order as on side 1,
@@ -358,7 +357,7 @@ subroutine setup_ibools(fdb,xstore,ystore,zstore,nspec,npointot)
     enddo
   enddo
   allocate( fdb%ibool2(NGLLSQUARE,fdb%nspec) )
-  call get_global(npointot,xp,yp,zp,fdb%ibool2,locval,ifseg,fdb%nglob,xmin,xmax)
+  call get_global(npointot,xp,yp,zp,fdb%ibool2,locval,fdb%nglob,xmin,xmax)
 
 end subroutine setup_ibools
 

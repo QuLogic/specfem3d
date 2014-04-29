@@ -27,8 +27,8 @@
 
 ! subroutines to sort MPI buffers to assemble between chunks
 
-  subroutine sort_array_coordinates(npointot,x,y,z,ibool,iglob,locval,ifseg, &
-                                    nglob,ninseg,xtol)
+  subroutine sort_array_coordinates(npointot,x,y,z,ibool,iglob,locval, &
+                                    nglob,xtol)
 
 ! this routine MUST be in double precision to avoid sensitivity
 ! to roundoff errors in the coordinates of the points
@@ -42,78 +42,33 @@
   integer, intent(in) :: npointot
   double precision, dimension(npointot), intent(inout) :: x, y, z
   integer, dimension(npointot), intent(inout) :: ibool
-  integer, dimension(npointot), intent(out) :: iglob, locval, ninseg
-  logical, dimension(npointot), intent(out) :: ifseg
+  integer, dimension(npointot), intent(out) :: iglob, locval
   integer, intent(out) :: nglob
   double precision, intent(in) :: xtol
 
   ! local parameters
-  integer :: i, j
-  integer :: nseg, ioff, iseg, ig
+  integer :: i
+  integer :: ig
 
   ! establish initial pointers
   do i=1,npointot
     locval(i) = i
   enddo
 
-  ifseg(:) = .false.
-
-  nseg = 1
-  ifseg(1) = .true.
-  ninseg(1) = npointot
-
-  do j=1,NDIM
-    ! sort within each segment
-    ioff = 1
-    do iseg=1,nseg
-      if (j == 1) then
-
-        call heap_sort_multi(ninseg(iseg), x(ioff), y(ioff), z(ioff), ibool(ioff), locval(ioff))
-
-      else if (j == 2) then
-
-        call heap_sort_multi(ninseg(iseg), y(ioff), x(ioff), z(ioff), ibool(ioff), locval(ioff))
-
-      else
-
-        call heap_sort_multi(ninseg(iseg), z(ioff), x(ioff), y(ioff), ibool(ioff), locval(ioff))
-
-      endif
-
-      ioff = ioff + ninseg(iseg)
-    enddo
-
-    ! check for jumps in current coordinate
-    if (j == 1) then
-      do i=2,npointot
-        if (dabs(x(i) - x(i-1)) > xtol) ifseg(i) = .true.
-      enddo
-    else if (j == 2) then
-      do i=2,npointot
-        if (dabs(y(i) - y(i-1)) > xtol) ifseg(i) = .true.
-      enddo
-    else
-      do i=2,npointot
-        if (dabs(z(i) - z(i-1)) > xtol) ifseg(i) = .true.
-      enddo
-    endif
-
-    ! count up number of different segments
-    nseg = 0
-    do i=1,npointot
-      if (ifseg(i)) then
-        nseg = nseg + 1
-        ninseg(nseg) = 1
-      else
-        ninseg(nseg) = ninseg(nseg) + 1
-      endif
-    enddo
-  enddo
+  call heap_sort_multi(npointot, x, y, z, ibool, locval)
 
   ! assign global node numbers (now sorted lexicographically)
-  ig = 0
-  do i=1,npointot
-    if (ifseg(i)) ig = ig + 1
+  ig = 1
+  iglob(locval(1)) = ig
+  do i=2,npointot
+    ! check for jumps in current coordinate
+    if (dabs(x(i) - x(i-1)) > xtol) then
+      ig = ig + 1
+    elseif (dabs(y(i) - y(i-1)) > xtol) then
+      ig = ig + 1
+    elseif (dabs(z(i) - z(i-1)) > xtol) then
+      ig = ig + 1
+    endif
     iglob(locval(i)) = ig
   enddo
 
@@ -204,11 +159,19 @@
     do while (j <= bottom)
       ! chooses larger value first in this section
       if (j < bottom) then
-        if (dx(j) <= dx(j+1)) j = j + 1
+        if (dx(j) < dx(j+1)) then
+          j = j + 1
+        elseif (dx(j) == dx(j+1) .and. dy(j) < dy(j+1)) then
+          j = j + 1
+        elseif (dx(j) == dx(j+1) .and. dy(j) == dy(j+1) .and. dz(j) <= dz(j+1)) then
+          j = j + 1
+        endif
       endif
 
       ! checks if section already smaller than initial value
       if (dx(j) < xtmp) exit
+      if (dx(j) == xtmp .and. dy(j) < ytmp) exit
+      if (dx(j) == xtmp .and. dy(j) == ytmp .and. dz(j) < ztmp) exit
 
       dx(i) = dx(j)
       dy(i) = dy(j)

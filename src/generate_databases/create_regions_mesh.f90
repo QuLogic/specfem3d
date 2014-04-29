@@ -649,14 +649,12 @@ subroutine crm_ext_setup_indexing(ibool, &
 ! variables for creating array ibool
   double precision, dimension(:), allocatable :: xp,yp,zp
   integer, dimension(:), allocatable :: locval
-  logical, dimension(:), allocatable :: ifseg
 
   integer :: ieoff,ilocnum,ier
   integer :: i,j,k,ispec,iglobnum
 
 ! allocate memory for arrays
   allocate(locval(npointot), &
-           ifseg(npointot), &
            xp(npointot), &
            yp(npointot), &
            zp(npointot),stat=ier)
@@ -664,7 +662,6 @@ subroutine crm_ext_setup_indexing(ibool, &
 
 ! creates temporary global point arrays
   locval = 0
-  ifseg = .false.
   xp = 0.d0
   yp = 0.d0
   zp = 0.d0
@@ -685,7 +682,7 @@ subroutine crm_ext_setup_indexing(ibool, &
   enddo
 
 ! gets ibool indexing from local (GLL points) to global points
-  call get_global(npointot,xp,yp,zp,ibool,locval,ifseg,nglob, &
+  call get_global(npointot,xp,yp,zp,ibool,locval,nglob, &
        minval(nodes_coords_ext_mesh(1,:)),maxval(nodes_coords_ext_mesh(1,:)))
 
 !- we can create a new indirect addressing to reduce cache misses
@@ -696,7 +693,6 @@ subroutine crm_ext_setup_indexing(ibool, &
   deallocate(yp,stat=ier); if(ier /= 0) stop 'error in deallocate'
   deallocate(zp,stat=ier); if(ier /= 0) stop 'error in deallocate'
   deallocate(locval,stat=ier); if(ier /= 0) stop 'error in deallocate'
-  deallocate(ifseg,stat=ier); if(ier /= 0) stop 'error in deallocate'
 
 ! unique global point locations
   nglob_dummy = nglob

@@ -120,7 +120,6 @@ contains
 
     ! variables for creating array ibool (some arrays also used for AVS or DX files)
     integer, dimension(:), allocatable :: iglob,locval
-    logical, dimension(:), allocatable :: ifseg
     double precision, dimension(:), allocatable :: xp,yp,zp
 
     integer nglob,NGLOB_AB
@@ -200,8 +199,6 @@ contains
     if( ier /= 0 ) stop 'error allocating array iglob'
     allocate(locval(npointot),stat=ier)
     if( ier /= 0 ) stop 'error allocating array locval'
-    allocate(ifseg(npointot),stat=ier)
-    if( ier /= 0 ) stop 'error allocating array ifseg'
     allocate(xp(npointot),stat=ier)
     if( ier /= 0 ) stop 'error allocating array xp'
     allocate(yp(npointot),stat=ier)
@@ -377,7 +374,7 @@ contains
     enddo
 
     ! sorts xp,yp,zp in lexicographical order (increasing values)
-    call get_global(npointot,xp,yp,zp,iglob,locval,ifseg,nglob,UTM_X_MIN,UTM_X_MAX)
+    call get_global(npointot,xp,yp,zp,iglob,locval,nglob,UTM_X_MIN,UTM_X_MAX)
 
     ! checks nglob range with pre-computed values
     ! note: if mesh squeezes elements such that we can't distinguish two close-by mesh points anymore

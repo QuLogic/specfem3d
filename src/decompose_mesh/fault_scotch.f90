@@ -296,9 +296,8 @@ CONTAINS
   double precision, intent(in) :: xyz_c(3,nspec)
 
   double precision, dimension(nspec) :: xp,yp,zp
-  integer, dimension(nspec) :: ninseg,ibool,iglob
+  integer, dimension(nspec) :: ibool,iglob
   integer :: nglob
-  logical :: ifseg(nspec)
   double precision :: xtol
 
   xp=xyz_c(1,:)
@@ -308,8 +307,8 @@ CONTAINS
   ! define geometrical tolerance based upon typical size of the model
   xtol = 1.d-10 * maxval( maxval(xyz_c,2) - minval(xyz_c,2) )
 
-  call sort_array_coordinates(nspec,xp,yp,zp,ibool,iglob,locval,ifseg, &
-                              nglob,ninseg,xtol)
+  call sort_array_coordinates(nspec,xp,yp,zp,ibool,iglob,locval, &
+                              nglob,xtol)
 
   end subroutine lex_order
 
