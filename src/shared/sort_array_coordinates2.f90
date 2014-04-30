@@ -55,7 +55,7 @@
     locval(i) = i
   enddo
 
-  call heap_sort_multi2(npointot, x, y, z, ibool, locval)
+  call heap_sort_multi2(npointot, x, y, z, ibool, locval, xtol)
 
   ! assign global node numbers (now sorted lexicographically)
   ig = 1
@@ -78,7 +78,7 @@
 
 ! -------------------- library for sorting routine ------------------
 
-  subroutine heap_sort_multi2(N, dx, dy, dz, ia, ib)
+  subroutine heap_sort_multi2(N, dx, dy, dz, ia, ib, tol)
 
   implicit none
   integer, intent(in) :: N
@@ -87,6 +87,7 @@
   double precision, dimension(N), intent(inout) :: dz
   integer, dimension(N), intent(inout) :: ia
   integer, dimension(N), intent(inout) :: ib
+  double precision, intent(in) :: tol
 
   integer :: i
 
@@ -147,6 +148,7 @@
     integer :: i, j
     double precision :: xtmp, ytmp, ztmp
     integer :: atmp, btmp
+    double precision :: xdiff, ydiff, zdiff
 
     i = start
     xtmp = dx(i)
@@ -159,19 +161,29 @@
     do while (j <= bottom)
       ! chooses larger value first in this section
       if (j < bottom) then
-        if (dx(j) < dx(j+1)) then
+        xdiff = dx(j+1) - dx(j)
+        if (xdiff > tol) then
           j = j + 1
-        elseif (dx(j) == dx(j+1) .and. dy(j) < dy(j+1)) then
-          j = j + 1
-        elseif (dx(j) == dx(j+1) .and. dy(j) == dy(j+1) .and. dz(j) <= dz(j+1)) then
-          j = j + 1
+        else
+          ydiff = dy(j+1) - dy(j)
+          if (dabs(xdiff) <= tol .and. ydiff > tol) then
+            j = j + 1
+          else
+            zdiff = dz(j) - dz(j+1)
+            if (dabs(xdiff) <= tol .and. dabs(ydiff) <= tol .and. zdiff <= tol) then
+              j = j + 1
+            endif
+          endif
         endif
       endif
 
       ! checks if section already smaller than initial value
-      if (dx(j) < xtmp) exit
-      if (dx(j) == xtmp .and. dy(j) < ytmp) exit
-      if (dx(j) == xtmp .and. dy(j) == ytmp .and. dz(j) < ztmp) exit
+      xdiff = xtmp - dx(j)
+      if (xdiff > tol) exit
+      ydiff = ytmp - dy(j)
+      if (dabs(xdiff) <= tol .and. ydiff > tol) exit
+      zdiff = dz(j) - ztmp
+      if (dabs(xdiff) <= tol .and. dabs(ydiff) <= tol .and. zdiff > tol) exit
 
       dx(i) = dx(j)
       dy(i) = dy(j)

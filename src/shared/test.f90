@@ -93,7 +93,7 @@ program testsac
   else
     do i=1,npointot
       write(1,'(3(g16.10,1x),3(i10,1x),l1)') &
-        x1(i),y1(i),z1(i),ibool1(i),iglob1(i),locval1(i),ifseg1(i)
+        x1(i),y1(i),z1(i),ibool1(i),iglob1(i),locval1(i)!,ifseg1(i)
       write(2,'(3(g16.10,1x),3(i10,1x),l1)') &
         x2(i),y2(i),z2(i),ibool2(i),iglob2(i),locval2(i)
     enddo
